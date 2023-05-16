@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class ProcessDeepLinkService : MonoBehaviour
 {
     public static ProcessDeepLinkService Instance { get; private set; }
-    [SerializeField] private Login _login;
+    //[SerializeField] private Login _login;
     private string deeplinkURL;
     private void Awake()
     {

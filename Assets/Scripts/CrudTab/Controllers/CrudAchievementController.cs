@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
+using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
 using Zenject;
@@ -34,7 +35,13 @@ public class CrudAchievementController : MonoBehaviour
         Single, Multiple, Tasks, Infinite
     }
     #endregion
+    [BoxGroup("Response")]
     [SerializeField] private string _responseURL;
+    [Space]
+    [BoxGroup("Response")]
+    [SerializeField] private string _createURL;
+    [BoxGroup("Response")]
+    [SerializeField] private string _editURL;
 
     [SerializeField] private CrudAchievementView _crudAchievementView;
     private bool _isProcessing;
@@ -53,12 +60,11 @@ public class CrudAchievementController : MonoBehaviour
 
         if (_isProcessing)
             return;
-        PostRequestSave(_responseURL, crudAchievement.id is null ? APIService.RequestType.POST : APIService.RequestType.PUT, data);
+        PostRequestSave($"{_responseURL}/{_createURL}", APIService.RequestType.POST, data);
     }
 
     private async UniTask PostRequestSave(string url, APIService.RequestType requestType, string json)
     {
-        Debug.Log(url + "|||" + requestType + "|||" + json);
         _isProcessing = true;
         _loading.SetVisible(true);
         var result = await APIService.SendRequest(url, requestType, json);
@@ -69,7 +75,7 @@ public class CrudAchievementController : MonoBehaviour
         if (result is null)
             return;
 
-        if (result.Code == "201")
+        if (result.Code == "200" || result.Code == "201")
         {
             MessageController.Instance.CallMessage($"{(requestType == APIService.RequestType.POST ? "Created" : "Edited")}", "Achievement");
         }

@@ -24,8 +24,8 @@ public static class APIService
         DELETE
     }
     #endregion
-    public static string HostPortAdress { get; private set; } = "localhost";
-    public static string URL => "http://" + HostPortAdress + "/api/";
+    public static string HostPortAddress { get; private set; } = "localhost";
+    public static string URL => "http://" + HostPortAddress + "/api/";
 
     public static async UniTask<RequestResult> SendRequest(string url, RequestType requestType, string json = null)
     {
@@ -38,9 +38,9 @@ public static class APIService
         uwr.downloadHandler = new DownloadHandlerBuffer();
 
         uwr.SetRequestHeader("Content-Type", "application/json");
-        if (AuthorizationController.UserToken is not null)
+        if (AuthController.UserToken is not null)
         {
-            uwr.SetRequestHeader("Authorization", "Bearer "+AuthorizationController.UserToken);
+            uwr.SetRequestHeader("Authorization", "Bearer "+AuthController.UserToken);
         }
 
         var cts = new CancellationTokenSource();
