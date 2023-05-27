@@ -1,11 +1,10 @@
 using Cysharp.Threading.Tasks;
+using Newtonsoft.Json;
 using Sirenix.OdinInspector;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 using static SearchView;
-using Newtonsoft.Json;
 public class SearchController : MonoBehaviour
 {
     [BoxGroup("Response")]
@@ -43,12 +42,9 @@ public class SearchController : MonoBehaviour
         _isProcessing = false;
         _loading.SetVisible(false);
 
-        if (result is null)
-            return;
-
         if (result.Code == "200" || result.Code == "204")
         {
-            List<UserDto> userList = JsonConvert.DeserializeObject<List<UserDto>>(result.Description);
+            List<UserDto?> userList = JsonConvert.DeserializeObject<List<UserDto>>(result.Description);
             _searchView.ShowResult(userList);
         }
         else if (result.Code == "401")

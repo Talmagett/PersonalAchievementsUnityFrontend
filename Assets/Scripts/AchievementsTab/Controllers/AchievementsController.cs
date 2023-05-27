@@ -1,6 +1,7 @@
-using Codice.CM.Common;
 using Cysharp.Threading.Tasks;
+using Newtonsoft.Json;
 using Sirenix.OdinInspector;
+using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
@@ -13,16 +14,15 @@ public class AchievementsController : MonoBehaviour
     [SerializeField] private string _getByUsernameURL;
     [BoxGroup("Response")]
     [SerializeField] private string _getAllURL;
+
+    [SerializeField] private Transform _achivementsContentParent;
+    [SerializeField] private AchievementItemView _achievementItemView;
     [SerializeField] private SingleAchievementView _singleAchievementView;
     [Inject] private LoadingView _loading;
     [SerializeField]
     private int _startIndex;
     [SerializeField]
     private int _endIndex;
-    public void GetAchievement()
-    {
-        GetRequestAchievement($"{_responseURL}/{_getByUsernameURL}/1");
-    }
     public void GetAllAchievements()
     {
         GetAllAchievementsRequest($"{_responseURL}/{_getAllURL}?startIndex={_startIndex}&endIndex={_endIndex}");
@@ -31,55 +31,8 @@ public class AchievementsController : MonoBehaviour
     {
         GetAllAchievementsRequest($"{_responseURL}/{_getAllURL}?startIndex={_startIndex}&endIndex={_endIndex}&userId={userName}");
     }
-    private async UniTask GetRequestAchievement(string url)
-    {
-        _loading.SetVisible(true);
-        var result = await APIService.SendRequest(url, APIService.RequestType.GET);
 
-        _loading.SetVisible(false);
 
-        if (result is null)
-            return;
-
-        if (result.Code == "200")
-        {
-            //MessageController.Instance.CallMessage(result.Code, result.Description);
-
-            var achievement = JsonUtility.FromJson<CrudAchievementController.CrudAchievement>(result.Description);
-
-            print(result.Description);
-            switch (achievement.progressType)
-            {
-                case CrudAchievementController.ProgressType.Single:
-                    _singleAchievementView
-                        .SetTitle(achievement.name)
-                        .SetDescription(achievement.description)
-                        .SetUnlocked(achievement.isUnlocked)
-                        .SetGlobal(achievement.isGlobal)
-                        .SetPrivate(achievement.isPrivate)
-                        .SetNotes(achievement.notes)
-                        .SetVisible(true);
-
-                    break;
-                case CrudAchievementController.ProgressType.Multiple:
-                    break;
-                case CrudAchievementController.ProgressType.Tasks:
-                    break;
-                case CrudAchievementController.ProgressType.Infinite:
-                    break;
-                default:
-                    break;
-            }
-        }
-        else if (result.Code == "401")
-        {
-            MessageController.Instance.CallMessage("Unauthorized", "Wrong username or password");
-        }
-        else
-        {
-            MessageController.Instance.CallMessage(result.Code, result.Description);
-        }
-    }
     private async UniTask GetAllAchievementsRequest(string url)
     {
         _loading.SetVisible(true);
@@ -90,36 +43,19 @@ public class AchievementsController : MonoBehaviour
         if (result is null)
             return;
 
-        if (result.Code == "200")
+        if (result.Code == "200" || result.Code == "204")
         {
-            //MessageController.Instance.CallMessage(result.Code, result.Description);
-
-            //var achievement = JsonUtility.FromJson<CrudAchievementController.CrudAchievement>(result.Description);
-
-            print(result.Description);
-            /*
-            switch (achievement.progressType)
+            while (_achivementsContentParent.childCount > 0)
             {
-                case CrudAchievementController.ProgressType.Single:
-                    _singleAchievementView
-                        .SetTitle(achievement.name)
-                        .SetDescription(achievement.description)
-                        .SetUnlocked(achievement.isUnlocked)
-                        .SetGlobal(achievement.isGlobal)
-                        .SetPrivate(achievement.isPrivate)
-                        .SetNotes(achievement.notes)
-                        .SetVisible(true);
+                DestroyImmediate(_achivementsContentParent.GetChild(0).gameObject);
+            }
 
-                    break;
-                case CrudAchievementController.ProgressType.Multiple:
-                    break;
-                case CrudAchievementController.ProgressType.Tasks:
-                    break;
-                case CrudAchievementController.ProgressType.Infinite:
-                    break;
-                default:
-                    break;
-            }*/
+            List<AchievementDto> userList = JsonConvert.DeserializeObject<List<AchievementDto>>(result.Description);
+            if (userList is not null)
+                foreach (var achievement in userList)
+                {
+                    Instantiate(_achievementItemView, _achivementsContentParent).SetData(achievement, _singleAchievementView);
+                }
         }
         else if (result.Code == "401")
         {

@@ -8,6 +8,7 @@ public class SearchView : MonoBehaviour
     [System.Serializable]
     public class UserDto
     {
+        public string id;
         public string username;
         public string ownedAchievements;
     }

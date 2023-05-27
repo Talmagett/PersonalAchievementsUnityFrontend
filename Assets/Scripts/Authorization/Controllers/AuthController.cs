@@ -13,9 +13,17 @@ public class AuthController : MonoBehaviour
         public string password;
     }
     [System.Serializable]
-    public class TokenJson
+    public class AuthResponse
     {
         public string token;
+        public string role;
+        public string id;
+    }
+
+    public enum Role
+    {
+        Admin,
+        Hunter
     }
     #endregion
 
@@ -30,7 +38,7 @@ public class AuthController : MonoBehaviour
 
     [SerializeField] private AuthenticationPanelView _authenticationView;
     [SerializeField] private AuthView _authView;
-    [SerializeField] private SignOutView _signOutView;
+    [SerializeField] private ProfileView _profileView;
     [Inject] private LoadingView _loading;
 
     private bool _isProcessing;
@@ -38,14 +46,14 @@ public class AuthController : MonoBehaviour
     {
         _authView.OnSignUpClick += OnSignUpClickedHandler;
         _authView.OnLogInClick += OnLoginClickedHandler;
-        _signOutView.OnSignOutClicked += OnSignOutClickedHandler;
+        _profileView.OnSignOutClicked += OnSignOutClickedHandler;
     }
 
     private void OnDisable()
     {
         _authView.OnSignUpClick -= OnSignUpClickedHandler;
         _authView.OnLogInClick -= OnLoginClickedHandler;
-        _signOutView.OnSignOutClicked -= OnSignOutClickedHandler;
+        _profileView.OnSignOutClicked -= OnSignOutClickedHandler;
     }
     private void OnLoginClickedHandler(UserData userLogin)
     {
@@ -63,7 +71,7 @@ public class AuthController : MonoBehaviour
     }
     private void OnSignOutClickedHandler()
     {
-        SetToken(null);
+        SetUserData(null);
         _authenticationView.SetVisible(true);
     }
     private async UniTask PostRequestLogin(string url, string json)
@@ -79,8 +87,9 @@ public class AuthController : MonoBehaviour
 
         if (result.Code == "200")
         {
-            var token = result.Description;
-            SetToken(token);
+            var response = JsonUtility.FromJson<AuthResponse>(result.Description);
+
+            SetUserData(response.token, (response.role == "Admin") ? Role.Admin : Role.Hunter, response.id);
             _authenticationView.SetVisible(false);
         }
         else
@@ -114,9 +123,12 @@ public class AuthController : MonoBehaviour
     }
 
     public static string UserToken { get; private set; } = null;
-
-    private void SetToken(string token)
+    public static Role UserRole { get; private set; } = Role.Hunter;
+    public static string Id { get; private set; } = null;
+    private void SetUserData(string? token, Role role = Role.Hunter, string id = null)
     {
-        UserToken = (token is null) ? null : JsonUtility.FromJson<TokenJson>(token).token;
+        UserToken = token;
+        UserRole = role;
+        Id = id;
     }
 }

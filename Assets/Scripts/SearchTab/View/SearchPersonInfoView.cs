@@ -1,20 +1,22 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using System.Linq;
+using UnityEngine.UI;
+using Zenject;
+using static SearchView;
+
 public class SearchPersonInfoView : MonoBehaviour
 {
     [SerializeField] private TMP_Text _usernameText;
     [SerializeField] private SliderTextView _achievementsCountSlider;
-    private string _username=null;
-    public void SetData(string username, string count)
-    {
-        gameObject.SetActive(true);
+    [SerializeField] private Button _viewAchievementsButton;
+    private string _id = null;
+    [Inject] private MainMenuController _mainMenuController;
 
-        _usernameText.text = username;
-        _username = username;
-        string[] minMax = count.Split('/');
+    public void SetData(UserDto userDto)
+    {
+        _usernameText.text = userDto.username;
+        _id = userDto.id;
+        string[] minMax = userDto.ownedAchievements.Split('/');
         if (int.TryParse(minMax[0], out int current))
         {
             _achievementsCountSlider.SetValue(current);
@@ -22,12 +24,16 @@ public class SearchPersonInfoView : MonoBehaviour
         if (int.TryParse(minMax[1], out int max))
         {
             _achievementsCountSlider.SetMaxValue(max);
+            _viewAchievementsButton.interactable = max > 0;
         }
+        gameObject.SetActive(true);
     }
     public void ViewAchievementOfUser()
     {
-        if (_username == null)
+        if (_id == null)
             return;
 
+        gameObject.SetActive(false);
+        _mainMenuController.ShowAchievements(_id);
     }
 }

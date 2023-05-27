@@ -1,10 +1,6 @@
-using Codice.CM.Common.Replication;
 using Cysharp.Threading.Tasks;
-using System.Diagnostics;
 using System.Threading;
-using UnityEngine;
 using UnityEngine.Networking;
-using static UnityEditor.Progress;
 
 public static class APIService
 {
@@ -24,7 +20,7 @@ public static class APIService
         DELETE
     }
     #endregion
-    public static string HostPortAddress { get; private set; } = "localhost";
+    public static string HostPortAddress { get; set; } = "localhost";
     public static string URL => "http://" + HostPortAddress + "/api/";
 
     public static async UniTask<RequestResult> SendRequest(string url, RequestType requestType, string json = null)
@@ -40,7 +36,7 @@ public static class APIService
         uwr.SetRequestHeader("Content-Type", "application/json");
         if (AuthController.UserToken is not null)
         {
-            uwr.SetRequestHeader("Authorization", "Bearer "+AuthController.UserToken);
+            uwr.SetRequestHeader("Authorization", "Bearer " + AuthController.UserToken);
         }
 
         var cts = new CancellationTokenSource();
