@@ -10,8 +10,7 @@ public class AchievementDto
     public string? ownerId;
     public bool isGlobal = false;
     public int? globalId;
-    public int lockedIconId;
-    public int unlockedIconId;
+    public int iconId;
     public bool isPrivate = false;
     public ProgressType progressType;
     public bool isUnlocked;

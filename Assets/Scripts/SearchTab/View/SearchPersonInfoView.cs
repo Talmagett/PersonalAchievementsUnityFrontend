@@ -9,9 +9,10 @@ public class SearchPersonInfoView : MonoBehaviour
     [SerializeField] private TMP_Text _usernameText;
     [SerializeField] private SliderTextView _achievementsCountSlider;
     [SerializeField] private Button _viewAchievementsButton;
+    [SerializeField] private GameObject _banningArea;
     private string _id = null;
     [Inject] private MainMenuController _mainMenuController;
-
+    public string Id => _id;
     public void SetData(UserDto userDto)
     {
         _usernameText.text = userDto.username;
@@ -26,8 +27,10 @@ public class SearchPersonInfoView : MonoBehaviour
             _achievementsCountSlider.SetMaxValue(max);
             _viewAchievementsButton.interactable = max > 0;
         }
+        _banningArea.SetActive(AuthController.UserRole==AuthController.Role.Admin);
         gameObject.SetActive(true);
     }
+
     public void ViewAchievementOfUser()
     {
         if (_id == null)

@@ -23,7 +23,7 @@ public static class APIService
     public static string HostPortAddress { get; set; } = "localhost";
     public static string URL => "http://" + HostPortAddress + "/api/";
 
-    public static async UniTask<RequestResult> SendRequest(string url, RequestType requestType, string json = null)
+    public static async UniTask<RequestResult> SendRequest(string url, RequestType requestType, string json = null,bool getError=false)
     {
         var uwr = new UnityWebRequest(URL + url, GetRequestType(requestType));
         if (json is not null)
@@ -51,7 +51,7 @@ public static class APIService
                 MessageController.Instance.CallNetworkErrorMessage();
         }
         string code = uwr.responseCode.ToString();
-        string description = uwr.result != UnityWebRequest.Result.Success ? uwr.error : uwr.downloadHandler.text;
+        string description = uwr.result != UnityWebRequest.Result.Success && !getError ? uwr.error : uwr.downloadHandler.text;
 
         if (json is not null)
             uwr.uploadHandler.Dispose();

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class MainMenuController : MonoBehaviour
@@ -7,12 +8,18 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] private string _localHostPortURL;
     [Space]
     [SerializeField] private MainMenuView _mainMenuView;
+    [SerializeField] private SearchController _searchController;
     [SerializeField] private AchievementsController _achievementsController;
     [SerializeField] private CrudController _crudController;
     [SerializeField] private ProfileController _profileController;
     private void Awake()
     {
         APIService.HostPortAddress = _usePort ? _localHostPortURL : _localHostURL;
+    }
+    public void ShowSearch()
+    {
+        _searchController.OnShow();
+        _mainMenuView.SelectTab(1);
     }
     public void ShowCrud()
     {

@@ -15,13 +15,16 @@ public class SearchController : MonoBehaviour
     [SerializeField] private SearchView _searchView;
     private bool _isProcessing;
     [Inject] private LoadingView _loading;
+    [Inject] private AuthController _authController;
     private void OnEnable()
     {
         _searchView.OnClick += OnClickHandler;
+        _authController.OnSignOut += OnSignOutHandler;
     }
     private void OnDisable()
     {
         _searchView.OnClick -= OnClickHandler;
+        _authController.OnSignOut -= OnSignOutHandler;
     }
     private void OnClickHandler(string value)
     {
@@ -29,14 +32,20 @@ public class SearchController : MonoBehaviour
 
         if (_isProcessing)
             return;
-        GetRequest(_responseURL, data);
+        GetRequest($"{_responseURL}/{_getUsersURL}/{data}");
     }
-
-    private async UniTask GetRequest(string url, string data)
+    public void OnShow()
+    {
+    }
+    public void OnSignOutHandler()
+    {
+        _searchView.Clear();
+    }
+    private async UniTask GetRequest(string url)
     {
         _isProcessing = true;
         _loading.SetVisible(true);
-        var result = await APIService.SendRequest($"{url}/{_getUsersURL}/{data}", APIService.RequestType.GET);
+        var result = await APIService.SendRequest(url, APIService.RequestType.GET);
 
 
         _isProcessing = false;

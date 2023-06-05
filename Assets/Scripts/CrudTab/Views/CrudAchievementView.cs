@@ -9,6 +9,8 @@ public class CrudAchievementView : MonoBehaviour
     [SerializeField] private TMP_InputField _titleIF;
     [SerializeField] private TMP_InputField _descriptionIF;
 
+    [SerializeField] private IconViewItem _iconViewItem;
+
     [SerializeField] private ProgressTypeView _progressType;
     [SerializeField] private Toggle _isUnlockedToggle;
     [SerializeField] private Toggle _isPrivateToogle;
@@ -31,9 +33,8 @@ public class CrudAchievementView : MonoBehaviour
         if (_achievementDto is null || _achievementDto.id is null)
         {
             _achievementDto = new AchievementDto();
-            //print(JsonConvert.SerializeObject(_achievementDto, formatting: Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
         }
-
+        _achievementDto.iconId = _iconViewItem.IconSO.IconId;
         _achievementDto.name = _titleIF.text;
         _achievementDto.description = string.IsNullOrWhiteSpace(_descriptionIF.text) ? null : _descriptionIF.text;
         _achievementDto.notes = string.IsNullOrWhiteSpace(_notesIF.text) ? null : _notesIF.text;
@@ -59,8 +60,6 @@ public class CrudAchievementView : MonoBehaviour
                 break;
         }
         _achievementDto.isGlobal = _isGlobalToggle.isOn;
-        _achievementDto.lockedIconId = 1;
-        _achievementDto.unlockedIconId = 2;
         _achievementDto.isPrivate = _isPrivateToogle.isOn;
         OnClick?.Invoke(_achievementDto);
         ClearData();

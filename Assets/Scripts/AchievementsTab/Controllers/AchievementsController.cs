@@ -16,6 +16,7 @@ public class AchievementsController : MonoBehaviour
     [SerializeField] private string _getAllURL;
 
     [SerializeField] private Transform _achivementsContentParent;
+    [SerializeField] private AchievementsView _achievementsView;
     [SerializeField] private AchievementItemView _achievementItemView;
     [SerializeField] private SingleAchievementView _singleAchievementView;
     [Inject] private LoadingView _loading;
@@ -52,10 +53,13 @@ public class AchievementsController : MonoBehaviour
 
             List<AchievementDto> userList = JsonConvert.DeserializeObject<List<AchievementDto>>(result.Description);
             if (userList is not null)
+            {
+                _achievementsView.SetCount(userList.Count, !url.Contains("userId") ? AuthController.Level : -1);
                 foreach (var achievement in userList)
                 {
                     Instantiate(_achievementItemView, _achivementsContentParent).SetData(achievement, _singleAchievementView);
                 }
+            }
         }
         else if (result.Code == "401")
         {
